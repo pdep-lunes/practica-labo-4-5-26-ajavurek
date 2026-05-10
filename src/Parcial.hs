@@ -1,11 +1,11 @@
 module Parcial where
 import Text.Show.Functions()
-juguete :: string
+juguete :: Jtring
 data Perro = unPerro {
-    raza :: string,
+    raza :: String,
     juguetesFav :: [juguete],
-    tiempo :: int,
-    energia :: int,
+    tiempo :: Int,
+    energia :: Int,
 }
 
 jugar :: Perro -> Perro
@@ -13,22 +13,22 @@ jugar unPerro = modificarEnergia (-10) unPerro
 modificarEnergia :: Int -> Perro -> Perro
 modificarEnergia cantidadEnergia unPerro = unPerro {energia = max (energia unPerro + cantidadEnergia) 0}
 
-ladrar :: int -> unPerro -> unPerro
+ladrar :: Int -> Perro -> Perro
 ladrar unladrido unPerro = unPerro {energia = cantLadrido}
-cantLadrido :: int -> int
+cantLadrido :: Int -> Int
 cantLadrido ladrido =  ladrido / 2
 
-regalar :: juguete -> unPerro -> Perro
+regalar :: Juguete -> Perro -> Perro
 regalar unPerro = modificarJuguetes (juguetesFav:) unPerro
 
 permanenciaMin :: Perro -> Bool
 permanenciaMin unPerro = unPerro {tiempo == 50}
-esDeRazaExtravagante :: unPerro -> bool
+esDeRazaExtravagante :: Perro -> Bool
 esDeRazaExtravagante unPerro = unPerro {raza == "Dálmata" || "Pomerania"}
-darRegalo :: unPerro -> unPerro
+darRegalo :: Perro -> Perro
 darRegalo unPerro = unPerro {energia = 100 && regalar nuevoJuguete unPerro}
 
-diaDeSpa :: unPerro -> unPerro
+diaDeSpa :: Perro -> Perro
 diaDeSpa unPerro 
         |permanenciaMin unPerro || esDeRazaExtravagante unPerro = darRegalo unPerro
         |otherwise = unPerro
@@ -42,8 +42,5 @@ perdidaDeJuguete  unPerro = modificarJuguete (drop 1) unPerro
 diaDeCampo :: Perro -> Perro
 diaDeCampo = (jugar.perdidaDeJuguete) unPerro
 
-zara :: perro
+zara :: Perro
 zara = unPerro "Dálmata" ["pelota","mantita"] 90 80
-
-doble :: Int -> Int
-doble = (*2)
