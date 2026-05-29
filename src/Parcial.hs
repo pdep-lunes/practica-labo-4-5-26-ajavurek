@@ -1,46 +1,76 @@
 module Parcial where
 import Text.Show.Functions()
-juguete :: Jtring
-data Perro = unPerro {
+
+data Perro = UnPerro {
     raza :: String,
-    juguetesFav :: [juguete],
+    juguetesFav :: [String],
     tiempo :: Int,
-    energia :: Int,
-}
+    energia :: Int
+} deriving (Show, Eq)
+
+type Ejercicio = Perro -> Perro
+
+data Guarderia = UnaGuarderia {
+    nombre :: String,
+    rutina :: [Actividad]
+} deriving Show
+
+type Actividad = (Ejercicio, Int)
 
 jugar :: Perro -> Perro
-jugar unPerro = modificarEnergia (-10) unPerro
+jugar = modificarEnergia (-10)
+
 modificarEnergia :: Int -> Perro -> Perro
 modificarEnergia cantidadEnergia unPerro = unPerro {energia = max (energia unPerro + cantidadEnergia) 0}
 
 ladrar :: Int -> Perro -> Perro
-ladrar unladrido unPerro = unPerro {energia = cantLadrido}
-cantLadrido :: Int -> Int
-cantLadrido ladrido =  ladrido / 2
+ladrar unLadrido = modificarEnergia (div unLadrido 2)
 
-regalar :: Juguete -> Perro -> Perro
-regalar unPerro = modificarJuguetes (juguetesFav:) unPerro
+regalar :: String -> Ejercicio
+regalar unJuguete = modificarJuguete (unJuguete :)
+
+modificarJuguete :: ([String] -> [String]) -> Perro -> Perro
+modificarJuguete unaFuncion unPerro = unPerro {juguetesFav = unaFuncion (juguetesFav unPerro)}
 
 permanenciaMin :: Perro -> Bool
-permanenciaMin unPerro = unPerro {tiempo == 50}
+permanenciaMin = (>=50) . tiempo
+
 esDeRazaExtravagante :: Perro -> Bool
-esDeRazaExtravagante unPerro = unPerro {raza == "Dálmata" || "Pomerania"}
+esDeRazaExtravagante unPerro = raza unPerro == "Dálmata" || raza unPerro == "Pomerania"
+
 darRegalo :: Perro -> Perro
-darRegalo unPerro = unPerro {energia = 100 && regalar nuevoJuguete unPerro}
+darRegalo unPerro = regalar "Peine de goma" (unPerro { energia = 100})
 
-diaDeSpa :: Perro -> Perro
-diaDeSpa unPerro 
-        |permanenciaMin unPerro || esDeRazaExtravagante unPerro = darRegalo unPerro
-        |otherwise = unPerro
-
-modificarJuguete :: ([juguete] -> [juguete]) -> Perro -> Perro
-modificarJuguete unaFucion unPerro = unPerro {juguetesFav = (unaFuncion.juguetesFav) unPerro}
+diaDeSpa :: Ejercicio
+diaDeSpa unPerro
+        | permanenciaMin unPerro || esDeRazaExtravagante unPerro = darRegalo unPerro
+        | otherwise = unPerro
 
 perdidaJuguete :: Perro -> Perro
-perdidaDeJuguete  unPerro = modificarJuguete (drop 1) unPerro
+perdidaJuguete = modificarJuguete (drop 1)
 
-diaDeCampo :: Perro -> Perro
-diaDeCampo = (jugar.perdidaDeJuguete) unPerro
+diaDeCampo :: Ejercicio
+diaDeCampo = perdidaJuguete . jugar
 
 zara :: Perro
-zara = unPerro "Dálmata" ["pelota","mantita"] 90 80
+zara = UnPerro {
+    raza = "Dálmata" ,
+    juguetesFav = ["Pelota", "Mantita"] ,
+    tiempo = 90 ,
+    energia = 80
+}
+
+guarderiaPdePerritos :: Guarderia
+guarderiaPdePerritos = UnaGuarderia {
+    nombre = "PdePerritos" ,
+    rutina =  [(jugar, 30), (ladrar 18, 20), (regalar "Pelota", 0), (diaDeSpa, 120), (diaDeCampo, 720)]
+}
+
+tiempoTotalRutina :: Guarderia -> Int
+tiempoTotalRutina = sum . map snd . rutina
+
+puedeEstar :: Perro -> Guarderia -> Bool
+puedeEstar unPerro unaGuarderia = tiempo unPerro > tiempoTotalRutina unaGuarderia
+
+esPerroResponsable :: Perro -> Bool
+esPerroResponsable = (>3) . length . juguetesFav . diaDeCampo
