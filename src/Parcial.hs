@@ -70,7 +70,18 @@ tiempoTotalRutina :: Guarderia -> Int
 tiempoTotalRutina = sum . map snd . rutina
 
 puedeEstar :: Perro -> Guarderia -> Bool
-puedeEstar unPerro unaGuarderia = tiempo unPerro > tiempoTotalRutina unaGuarderia
+puedeEstar unPerro unaGuarderia = tiempo unPerro >= tiempoTotalRutina unaGuarderia
 
 esPerroResponsable :: Perro -> Bool
 esPerroResponsable = (>3) . length . juguetesFav . diaDeCampo
+
+hacerEjercicio :: Perro -> Actividad -> Perro
+hacerEjercicio unPerro (unEjercicio, _) = unEjercicio unPerro
+
+realizarRutina :: Guarderia -> Perro -> Perro
+realizarRutina  unaGuarderia unPerro
+        | puedeEstar unPerro unaGuarderia = foldl hacerEjercicio unPerro (rutina unaGuarderia)
+        | otherwise = unPerro
+
+perrosCansados :: [Perro] -> Guarderia -> [Perro]
+perrosCansados listaP unaGuarderia = filter ((<5) . energia) . map (realizarRutina unaGuarderia) $ listaP
